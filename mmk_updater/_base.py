@@ -119,6 +119,8 @@ class UpdaterTool:
 
     # noinspection PyBroadException
     def _process(self):
+        self.cleanup()
+
         log.debug("fetching update info...")
         try:
             release_info = urllib.request.urlopen(self.release_url).read()
@@ -210,32 +212,33 @@ class UpdaterTool:
             no_console.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             subprocess.Popen(self.file_path, startupinfo=no_console, shell=True)
 
-        # Do auto-unpack, prep dir
-        target_dir = Path(sys.executable).parent
-        current_exe = Path(sys.executable)
-        update_dir = target_dir / "_update"
-        if update_dir.exists():
-            shutil.rmtree(update_dir)
-        update_dir.mkdir()
+        if "auto_unpack" in self.selected_asset:
+            # Do auto-unpack, prep dir
+            target_dir = Path(sys.executable).parent
+            current_exe = Path(sys.executable)
+            update_dir = target_dir / "_update"
+            if update_dir.exists():
+                shutil.rmtree(update_dir)
+            update_dir.mkdir()
 
-        # Unpack archive
-        with ZipFile(self.file_path, "r") as update_zip:
-            update_zip.extractall(update_dir)
+            # Unpack archive
+            with ZipFile(self.file_path, "r") as update_zip:
+                update_zip.extractall(update_dir)
 
-        # Create installer batch
-        batch_path = target_dir / "_auto_update.cmd"
-        if batch_path.exists():
-            batch_path.unlink()
+            # Create installer batch
+            batch_path = target_dir / "_auto_update.cmd"
+            if batch_path.exists():
+                batch_path.unlink()
 
-        with open(batch_path, "w") as batch:
-            batch.write("@echo off\n")
-            batch.write(f"echo Updating {self.release_data['app']}\n")
-            batch.write(f"taskkill /f /im:{current_exe.name}\n")
-            batch.write(f"robocopy \"{update_dir} \" \"{target_dir} \" /S /E /MOV\n")
-            batch.write(f"start \"\" \"{current_exe}\"\n")
-            batch.write("exit\n")
+            with open(batch_path, "w") as batch:
+                batch.write("@echo off\n")
+                batch.write(f"echo Updating {self.release_data['app']}\n")
+                batch.write(f"taskkill /f /im:{current_exe.name}\n")
+                batch.write(f"robocopy \"{update_dir} \" \"{target_dir} \" /S /E /MOV\n")
+                batch.write(f"start \"\" \"{current_exe}\"\n")
+                batch.write("exit\n")
 
-        subprocess.Popen([str(batch_path)])
+            subprocess.Popen([str(batch_path)])
 
     @staticmethod
     def can_install(asset):
@@ -273,3 +276,16 @@ class UpdaterTool:
                     self.ui_mod.update_download_progress(perc)
 
         return buffer
+
+    @staticmethod
+    def cleanup():
+        if platform.system() != "Windows" or not getattr(sys, "frozen", False):
+            return False
+
+        target_dir = Path(sys.executable).parent
+        if (target_dir / "_update").is_dir():
+            log.info(f"Delete directory {target_dir / '_update'}")
+            shutil.rmtree(target_dir / "_update")
+        if (target_dir / '_auto_update.cmd').is_file():
+            log.info(f"Delete file {target_dir / '_auto_update.cmd'}")
+            (target_dir / '_auto_update.cmd').unlink()
