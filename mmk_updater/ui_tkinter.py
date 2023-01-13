@@ -6,9 +6,9 @@ import tkinter.messagebox
 import webbrowser
 from tkinter import ttk
 
-from ._base import DummyUiModule
-from ._lc import t
-from ._tools import sizeof_fmt
+from mmk_updater._base import DummyUiModule
+from mmk_updater._lc import t
+from mmk_updater._tools import sizeof_fmt
 
 log = logging.getLogger("TkinterUpdateUI")
 
@@ -45,6 +45,7 @@ class TkinterUiMod(DummyUiModule):
     def show_ppa_update_message(self):
         def _internal():
             root = tkinter.Toplevel()
+            root.wm_resizable(False, False)
             root.wm_title("Updater")
 
             frame = ttk.Frame(root)
@@ -64,6 +65,7 @@ class TkinterUiMod(DummyUiModule):
 
         def _internal():
             root = tkinter.Toplevel()
+            root.wm_resizable(False, False)
             root.wm_title(self.updater.release_data["app"])
             self.tk_dl_root = root
 
@@ -113,6 +115,7 @@ class TkinterUiMod(DummyUiModule):
             size = sizeof_fmt(size)
 
             root = tkinter.Toplevel()
+            root.wm_resizable(False, False)
             root.wm_title(self.updater.release_data["app"])
 
             self.tk_ask_root = root
@@ -145,6 +148,7 @@ class TkinterUiMod(DummyUiModule):
         def _internal():
             path = self.updater.file_path
             root = tkinter.Toplevel()
+            root.wm_resizable(False, False)
             root.wm_title(self.updater.release_data["app"])
 
             self.tk_msg_root = root

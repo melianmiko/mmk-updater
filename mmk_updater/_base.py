@@ -56,6 +56,8 @@ class UpdaterTool:
         self.selected_asset = None
         self.ppa_glob = "/etc/apt/sources.list.d/melianmiko-ubuntu-software-*"
 
+        self.ignore_ppa = True
+
         self.ui_mod = ui_mod
         self.ui_mod.on_bind(self)
 
@@ -64,7 +66,7 @@ class UpdaterTool:
 
     # overridable
     def should_show_update_ui(self):
-        if self._has_ppa():
+        if self._has_ppa() and not self.ignore_ppa:
             log.debug("has ppa, don't show update ui")
             return False
 
@@ -140,7 +142,7 @@ class UpdaterTool:
         self._run_updater_ui()
 
     def _run_updater_ui(self):
-        if self._has_external_updater() or self._has_ppa():
+        if (self._has_external_updater() or self._has_ppa()) and not self.ignore_ppa:
             self.ui_mod.show_ppa_update_message()
             return
 
