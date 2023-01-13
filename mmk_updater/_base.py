@@ -119,7 +119,7 @@ class UpdaterTool:
 
     # noinspection PyBroadException
     def _process(self):
-        self.cleanup()
+        UpdaterTool.cleanup()
 
         log.debug("fetching update info...")
         try:
@@ -233,9 +233,9 @@ class UpdaterTool:
             with open(batch_path, "w") as batch:
                 batch.write("@echo off\n")
                 batch.write(f"echo Updating {self.release_data['app']}\n")
-                batch.write(f"taskkill /f /im:{current_exe.name}\n")
-                batch.write(f"robocopy \"{update_dir} \" \"{target_dir} \" /S /E /MOV\n")
-                batch.write(f"start \"\" \"{current_exe}\"\n")
+                batch.write(f"taskkill /f /im:{current_exe.name} >nul 2>&1\n")
+                batch.write(f"robocopy \"{update_dir} \" \"{target_dir} \" /S /E /MOV >nul 2>&1\n")
+                batch.write(f"start \"\" \"{current_exe}\">nul 2>&1\n")
                 batch.write("exit\n")
 
             subprocess.Popen([str(batch_path)])
