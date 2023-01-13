@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mmk_updater"
+version = "v0.12.1"
+authors = [
+    {name = "MelianMiko", email = "melianmiko@yandex.ru"},
+]
+description = "Updater for my Python apps"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+dependencies = []
+
+[project.optional-dependencies]
+tk = ["tkinter"]
