@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mmk_updater"
-version = "v0.13.1"
+version = "v0.14"
 authors = [
     {name = "MelianMiko", email = "melianmiko@yandex.ru"},
 ]

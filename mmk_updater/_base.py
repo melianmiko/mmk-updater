@@ -54,9 +54,11 @@ class UpdaterTool:
         self.release_data = {}
         self.file_path = Path.home()
         self.selected_asset = None
-        self.ppa_glob = "/etc/apt/sources.list.d/melianmiko-ubuntu-software-*"
+        self.ppa_glob = "/etc/apt/sources.list.d/melianmiko-repo*"
+        self.old_ppa_glob = "/etc/apt/sources.list.d/melianmiko-ubuntu-software-*"
 
-        self.ignore_ppa = True
+        self.ignore_ppa = False
+        self.force_show = False
 
         self.ui_mod = ui_mod
         self.ui_mod.on_bind(self)
@@ -66,7 +68,7 @@ class UpdaterTool:
 
     # overridable
     def should_show_update_ui(self):
-        if self._has_ppa() and not self.ignore_ppa:
+        if self._has_ppa() and not self.ignore_ppa and not self.force_show:
             log.debug("has ppa, don't show update ui")
             return False
 
@@ -78,6 +80,10 @@ class UpdaterTool:
 
     def _has_ppa(self):
         g = glob.glob(self.ppa_glob)
+        return len(g) > 0
+
+    def has_old_ppa(self):
+        g = glob.glob(self.old_ppa_glob)
         return len(g) > 0
 
     @staticmethod
@@ -125,7 +131,7 @@ class UpdaterTool:
 
         log.debug("fetching update info...")
         try:
-            release_info = urllib.request.urlopen(self.release_url).read()
+            release_info = urllib.request.urlopen(self.release_url, timeout=5).read()
             release_info = release_info.decode("utf8")
         except Exception:
             log.exception("can't fetch release info")

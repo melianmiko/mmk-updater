@@ -53,8 +53,16 @@ class TkinterUiMod(DummyUiModule):
 
             self._add_base_update_info(frame, 1)
 
-            ttk.Label(frame, text=t("repo_install"), justify=tkinter.LEFT) \
-                .grid(column=0, row=4, columnspan=3, padx=16, pady=4, sticky=tkinter.NW)
+            if self.updater.has_old_ppa():
+                link = ttk.Label(frame, text=t("ppa_migration"),
+                                 foreground="#FF5500",
+                                 cursor="hand2")
+                link.bind("<Button-1>", self._open_old_ppa_guide)
+                link.grid(column=0, row=4, padx=16, pady=4, columnspan=3, sticky=tkinter.NW)
+            else:
+                ttk.Label(frame, text=t("repo_install"), justify=tkinter.LEFT) \
+                    .grid(column=0, row=4, columnspan=3, padx=16, pady=4, sticky=tkinter.NW)
+
             ttk.Button(frame, text=t("close_btn"), command=root.destroy) \
                 .grid(column=0, row=5, padx=4, pady=4, sticky=tkinter.NW)
 
@@ -194,6 +202,8 @@ class TkinterUiMod(DummyUiModule):
         self.tk_dl_root = None
         self.tk_progress = None
 
-    # noinspection PyUnusedLocal
-    def _open_site(self, ev):
+    def _open_old_ppa_guide(self, _):
+        webbrowser.open("https://melianmiko.ru/en/ppa_migration")
+
+    def _open_site(self, _):
         webbrowser.open(self.updater.release_data["website"])
