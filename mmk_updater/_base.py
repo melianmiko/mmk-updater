@@ -121,7 +121,7 @@ class UpdaterTool:
             tag = "debian"
 
         if tag not in self.release_data:
-            return None
+            return None, tag
 
         return self.release_data[tag][0], tag
 
