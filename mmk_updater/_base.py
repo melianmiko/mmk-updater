@@ -187,16 +187,6 @@ class UpdaterTool:
             self.ui_mod.percent = -1
             return
 
-        # Trigger download stats
-        log.debug("trigger download stats")
-        req = urllib.request.Request("https://melianmiko.ru/api/goal",
-                                     json.dumps({
-                                         "target": self.release_data["app"],
-                                         "tag": "update_" + tag
-                                     }).encode("utf8"))
-        resp = urllib.request.urlopen(req)
-        log.debug(resp.read().decode('utf8'))
-
         # Write to file
         log.debug("writing to file {}".format(self.file_path))
         with open(self.file_path, "wb") as f:
