@@ -208,7 +208,7 @@ class UpdaterTool:
             log.debug("Running windows installer...")
             no_console = subprocess.STARTUPINFO()
             no_console.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            subprocess.Popen(self.file_path, startupinfo=no_console, shell=True)
+            subprocess.Popen([str(self.file_path)], startupinfo=no_console, shell=True)
 
         if "auto_unpack" in self.selected_asset:
             # Do auto-unpack, prep dir
