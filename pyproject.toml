@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "mmk-updater"
 description = "mmk-updater"
-version = "0.15.0"
+version = "0.15.1"
 authors = ["MelianMiko <support@mmk.pw>"]
 include = [
     { path = "mmk_updater/qt/designer/*.py", format = ["wheel"] },

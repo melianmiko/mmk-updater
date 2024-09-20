@@ -7,7 +7,7 @@ from typing import Optional
 
 @dataclass
 class UpdateCheckerConfig:
-    class NotifyMethod(Enum):
+    class NotifyMethod:
         NONE = 0
         POP_UP = 1
         DESKTOP_NOTIFICATION = 2

@@ -29,13 +29,13 @@ class MmkUpdaterQt(MmkUpdaterComon):
     async def show_dialog_message(self, text: str):
         ev = asyncio.Event()
 
-        def _leave():
+        def _trigger():
             ev.set()
 
         msg = QMessageBox()
         msg.setText(text)
         msg.setIcon(QMessageBox.Icon.Information)
-        msg.buttonClicked.connect(_leave)
+        msg.buttonClicked.connect(_trigger)
 
         msg.show()
         await ev.wait()

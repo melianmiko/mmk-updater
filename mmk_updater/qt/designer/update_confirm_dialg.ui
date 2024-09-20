@@ -56,7 +56,7 @@
           </font>
          </property>
          <property name="text">
-          <string>My Application</string>
+          <string notr="true">My Application</string>
          </property>
         </widget>
        </item>
@@ -174,6 +174,9 @@
          <property name="text">
           <string>Remind after N days</string>
          </property>
+         <property name="shortcut">
+          <string>Ctrl+D</string>
+         </property>
          <property name="flat">
           <bool>true</bool>
          </property>
@@ -183,6 +186,9 @@
         <widget class="QPushButton" name="button_close">
          <property name="text">
           <string>Close</string>
+         </property>
+         <property name="shortcut">
+          <string>Ctrl+W</string>
          </property>
          <property name="flat">
           <bool>true</bool>

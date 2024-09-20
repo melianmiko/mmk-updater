@@ -4,6 +4,7 @@ import json
 import logging
 import subprocess
 import sys
+from dataclasses import asdict
 from datetime import datetime
 from functools import cached_property
 from pathlib import Path
@@ -12,6 +13,7 @@ from typing import Optional
 import aiohttp
 
 from mmk_updater.generic import IMmkUpdater, UpdateCheckerConfig, ReleaseInfo, StateData
+from mmk_updater.i18n import t
 
 log = logging.getLogger("MmkUpdaterComon")
 
@@ -49,7 +51,7 @@ class MmkUpdaterComon(IMmkUpdater):
             if self.config.current_version == self.release_info.version:
                 log.debug("No updates")
                 if user_triggered:
-                    await self.show_dialog_message("You're using latest version")
+                    await self.show_dialog_message(t("You're using latest version"))
                 return
 
             # If win32, select target
@@ -120,7 +122,7 @@ class MmkUpdaterComon(IMmkUpdater):
             return
 
         log.debug("Will check for updates in background...")
-        self._task = asyncio.create_task(self.check_now(True))
+        self._task = asyncio.create_task(self.check_now(False))
 
     async def close(self):
         if self._task is not None:
@@ -149,9 +151,8 @@ class MmkUpdaterComon(IMmkUpdater):
         log.info(f"Dialog: {text}")
 
     def save_state(self):
-        return
-        # with open(self.config.state_location, "w") as f:
-        #     json.dump(asdict(self.state), f)
+        with open(self.config.state_location, "w") as f:
+            json.dump(asdict(self.state), f)
 
     @cached_property
     def update_through_ppa(self):
