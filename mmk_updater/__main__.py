@@ -15,7 +15,7 @@ config = UpdateCheckerConfig(server_url="https://st.mmk.pw/openfreebuds",
 
 
 async def main():
-    updater = MmkUpdaterQt(config)
+    updater = MmkUpdaterQt(None, config)
 
     await updater.boot()
     print("Started")

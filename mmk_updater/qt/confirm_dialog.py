@@ -2,7 +2,7 @@ import asyncio
 from enum import Enum
 
 from PyQt6.QtCore import pyqtSlot
-from PyQt6.QtWidgets import QMainWindow
+from PyQt6.QtWidgets import QWidget, QDialog
 
 from mmk_updater.generic import IMmkUpdater
 from mmk_updater.i18n import t
@@ -10,14 +10,14 @@ from mmk_updater.qt.designer.update_confirm_dialg import Ui_MainWindow
 from mmk_updater.utils import sizeof_fmt
 
 
-class MmkUpdaterConfirmDialog(Ui_MainWindow, QMainWindow):
+class MmkUpdaterConfirmDialog(Ui_MainWindow, QDialog):
     class Response(Enum):
         DISMISS = 0
         LATER = 1
         CONFIRM = 2
 
-    def __init__(self):
-        super().__init__(None)
+    def __init__(self, parent: QWidget):
+        super().__init__(parent)
         self.setupUi(self)
         self.setVisible(False)
         self.response: MmkUpdaterConfirmDialog.Response = MmkUpdaterConfirmDialog.Response.DISMISS

@@ -45,18 +45,21 @@ class ReleaseInfo:
 class StateData:
     last_checked: str = "1970-01-01T00:00:00"
     last_shown: str = "1970-01-01T00:00:00"
-    release_info: Optional[dict] = None
+    release_info_json: str = "null"
 
 
 class IMmkUpdater:
     def __init__(self, config: UpdateCheckerConfig):
         self.config = config
-        self.has_update: bool = False
         self.release_info: Optional[ReleaseInfo] = None
         self.selected_target: Optional[dict] = None
 
     @property
     def update_through_ppa(self):
+        return False
+
+    @property
+    def has_update(self):
         return False
 
     async def boot(self):

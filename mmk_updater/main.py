@@ -26,26 +26,30 @@ class MmkUpdaterComon(IMmkUpdater):
         self.state = StateData()
         if config.state_location.is_file():
             with open(config.state_location, "r") as f:
-                self.state = StateData(*json.load(f))
+                self.state = StateData(**json.load(f))
 
     async def check_now(self, user_triggered: bool = False):
         async with aiohttp.ClientSession() as session:
             release_info_url = f"{self.config.server_url}/release.json"
             log.debug(f"Fetching release info from {release_info_url}")
 
-            # Download release info
-            try:
-                async with session.get(release_info_url) as release_info_rq:
-                    self.release_info = ReleaseInfo(**await release_info_rq.json())
-            except aiohttp.ClientError:
-                log.error(f"Can't check for updates, will try again later")
-                if user_triggered:
-                    await self.show_dialog_message("Can't check for updates, network error")
-                return
-
-            # Update last check time
-            self.state.last_checked = datetime.now().isoformat()
-            self.save_state()
+            allow_since = datetime.fromisoformat(self.state.last_checked) + self.config.check_interval
+            if allow_since < datetime.now():
+                # Download release info
+                try:
+                    async with session.get(release_info_url) as release_info_rq:
+                        self.release_info = ReleaseInfo(**await release_info_rq.json())
+                    # Update last check time
+                    self.state.last_checked = datetime.now().isoformat()
+                    self.state.release_info_json = json.dumps(asdict(self.release_info))
+                    self.save_state()
+                except aiohttp.ClientError:
+                    log.error(f"Can't check for updates, will try again later")
+                    if user_triggered:
+                        await self.show_dialog_message("Can't check for updates, network error")
+                    return
+            else:
+                log.debug("Use cached release info due to check interval restriction")
 
             # If on latest release...
             if self.config.current_version == self.release_info.version:
@@ -58,8 +62,13 @@ class MmkUpdaterComon(IMmkUpdater):
             self.selected_target = self.release_info.windows[0]
             log.info(f"url={self.selected_target['url']}, size={self.selected_target['size']}")
 
+            # Dismiss
+            allow_since = datetime.fromisoformat(self.state.last_shown) + self.config.show_interval
+            if allow_since >= datetime.now() and not user_triggered:
+                log.debug("Dismiss, due to show interval")
+                return
+
             # Begin UI staff
-            self.has_update = True
             if user_triggered or self.config.notify_method == UpdateCheckerConfig.NotifyMethod.POP_UP:
                 update_now = await self.show_update_confirm()
             elif self.config.notify_method == UpdateCheckerConfig.NotifyMethod.DESKTOP_NOTIFICATION:
@@ -68,11 +77,6 @@ class MmkUpdaterComon(IMmkUpdater):
                     update_now = await self.show_update_confirm()
             else:
                 update_now = False
-
-            allow_since = datetime.fromisoformat(self.state.last_shown) + self.config.show_interval
-            if allow_since >= datetime.now():
-                log.debug("Dismiss, due to show interval")
-                return
 
             if update_now is False:
                 log.info("Save last showed time")
@@ -116,12 +120,10 @@ class MmkUpdaterComon(IMmkUpdater):
     async def boot(self):
         await self.close()
 
-        allow_since = datetime.fromisoformat(self.state.last_checked) + self.config.check_interval
-        if allow_since >= datetime.now():
-            log.debug("Dismiss, due to check interval")
-            return
-
         log.debug("Will check for updates in background...")
+        self.release_info = json.loads(self.state.release_info_json)
+        if self.release_info is not None:
+            self.release_info = ReleaseInfo(**self.release_info)
         self._task = asyncio.create_task(self.check_now(False))
 
     async def close(self):
@@ -158,3 +160,9 @@ class MmkUpdaterComon(IMmkUpdater):
     def update_through_ppa(self):
         g = glob.glob(self.config.ppa_file_glob)
         return len(g) > 0 and self.config.ignore_if_ppa_is_present
+
+    @property
+    def has_update(self):
+        if self.release_info is None:
+            return False
+        return self.config.current_version != self.release_info.version

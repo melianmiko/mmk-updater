@@ -1,7 +1,7 @@
 import asyncio
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtWidgets import QMessageBox, QWidget
 
 from mmk_updater.generic import UpdateCheckerConfig
 from mmk_updater.main import MmkUpdaterComon
@@ -9,9 +9,10 @@ from mmk_updater.qt.confirm_dialog import MmkUpdaterConfirmDialog
 
 
 class MmkUpdaterQt(MmkUpdaterComon):
-    def __init__(self, config: UpdateCheckerConfig):
+    def __init__(self, parent: QWidget, config: UpdateCheckerConfig):
         super().__init__(config)
-        self.confirm_dialog = MmkUpdaterConfirmDialog()
+        self.parent = parent
+        self.confirm_dialog = MmkUpdaterConfirmDialog(parent)
 
     async def show_update_confirm(self) -> bool:
         self.confirm_dialog.fill_window(self)
@@ -32,7 +33,7 @@ class MmkUpdaterQt(MmkUpdaterComon):
         def _trigger():
             ev.set()
 
-        msg = QMessageBox()
+        msg = QMessageBox(self.parent)
         msg.setText(text)
         msg.setIcon(QMessageBox.Icon.Information)
         msg.buttonClicked.connect(_trigger)
