@@ -16,6 +16,7 @@ from mmk_updater.generic import IMmkUpdater, UpdateCheckerConfig, ReleaseInfo, S
 from mmk_updater.i18n import t
 
 log = logging.getLogger("MmkUpdaterComon")
+CHUNK_SIZE = 64 * 1024
 
 
 class MmkUpdaterComon(IMmkUpdater):
@@ -46,7 +47,7 @@ class MmkUpdaterComon(IMmkUpdater):
                 except aiohttp.ClientError:
                     log.error(f"Can't check for updates, will try again later")
                     if user_triggered:
-                        await self.show_dialog_message("Can't check for updates, network error")
+                        await self.show_dialog_message(t("Can't check for updates, network error"))
                     return
             else:
                 log.debug("Use cached release info due to check interval restriction")
@@ -72,7 +73,7 @@ class MmkUpdaterComon(IMmkUpdater):
             if user_triggered or self.config.notify_method == UpdateCheckerConfig.NotifyMethod.POP_UP:
                 update_now = await self.show_update_confirm()
             elif self.config.notify_method == UpdateCheckerConfig.NotifyMethod.DESKTOP_NOTIFICATION:
-                update_now = await self.show_notification("New version is available, click here to view")
+                update_now = await self.show_notification(t("New version is available, click here to view"))
                 if update_now:
                     update_now = await self.show_update_confirm()
             else:
@@ -98,7 +99,7 @@ class MmkUpdaterComon(IMmkUpdater):
                 async with session.get(self.selected_target['url']) as r:
                     total_size = int(r.headers.get("content-length", "0"))
                     read_size = 0
-                    async for chunk in r.content.iter_chunked(8192):
+                    async for chunk in r.content.iter_chunked(CHUNK_SIZE):
                         # noinspection PyTypeChecker
                         read_size += len(chunk)
                         await self.set_update_progress(int(read_size / total_size * 100))
@@ -113,7 +114,7 @@ class MmkUpdaterComon(IMmkUpdater):
                 no_console.dwFlags |= subprocess.STARTF_USESHOWWINDOW
                 subprocess.Popen([str(file_path)], startupinfo=no_console, shell=True)
             else:
-                await self.show_dialog_message(f"File downloaded, install it manually: {file_path}")
+                await self.show_dialog_message(f"{t('File downloaded, install it manually:')} {file_path}")
 
             log.debug("Closed")
 

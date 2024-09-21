@@ -43,7 +43,13 @@ class MmkUpdaterConfirmDialog(Ui_MainWindow, QDialog):
         self.action_bar.setVisible(False)
 
     def fill_window(self, ctx: IMmkUpdater):
+        self.setWindowTitle(ctx.config.app_display_name)
         self.header.setText(t("New version available"))
+        self.button_later.setText(
+            t("Remind after {} days").replace("{}", str(ctx.config.show_interval.days))
+        )
+        self.button_confirm.setText(t("Update now"))
+        self.button_close.setText(t("Close"))
         self.app_label.setText(ctx.config.app_display_name)
         self.version.setText(ctx.release_info.version)
         self.changelog.setText("\n".join(ctx.release_info.changelog))
