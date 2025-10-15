@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "mmk-updater"
 description = "mmk-updater"
-version = "0.15.5"
+version = "0.15.6"
 authors = ["MelianMiko <support@mmk.pw>"]
 include = [
     { path = "mmk_updater/qt/designer/*.py", format = ["wheel"] },
@@ -9,10 +9,10 @@ include = [
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4"
-pillow = "^11.0.0"
-qasync = "^0.27.1"
-pyqt6 = "^6.7.1"
-aiohttp = "^3.10.5"
+pillow = ">=11.0.0"
+qasync = ">=0.27.1"
+pyqt6 = ">=6.7.1"
+aiohttp = ">=3.10.5"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
